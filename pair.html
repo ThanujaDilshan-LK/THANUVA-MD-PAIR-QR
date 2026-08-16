@@ -1,501 +1,423 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Knight Bot - WhatsApp Linker</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-  <style>
-    :root {
-      --primary-color: #000000;
-      --secondary-color: #ffffff;
-      --accent-color: #f0f0f0;
-      --text-color: #000000;
-      --background-color: #ffffff;
-      --hover-color: #f5f5f5;
-      --border-color: rgba(0, 0, 0, 0.1);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THANUVA-MD — WhatsApp Automation Bot</title>
+<style>
+  :root{
+    --bg:#0a0f0d; --panel:#0f1613; --panel-2:#131c18; --line:#1f2b25;
+    --green:#25D366; --teal:#128C7E; --text:#e8f3ee; --muted:#7c9187;
+    --amber:#d9a441; --red:#e5564f;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; line-height:1.55;
+  }
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+  .mono{ font-family:'JetBrains Mono','IBM Plex Mono','Courier New',monospace; }
+  a{ color:inherit; }
+  .wrap{ max-width:1080px; margin:0 auto; padding:0 24px; }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  /* NAV */
+  nav{ position:sticky; top:0; z-index:50; background:rgba(10,15,13,.85); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
+  nav .wrap{ display:flex; align-items:center; justify-content:space-between; height:64px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:700; }
+  .brand .dot{ width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 1.6s infinite; }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+  .navlinks{ display:flex; gap:26px; font-size:14px; color:var(--muted); }
+  .navlinks a:hover{ color:var(--green); }
+  @media (max-width:760px){ .navlinks{ display:none; } }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--background-color);
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 15px;
-    }
+  /* HERO */
+  header.hero{ padding:64px 0 48px; }
+  .hero-grid{ display:grid; grid-template-columns:1.1fr 1fr; gap:44px; align-items:center; }
+  @media (max-width:900px){ .hero-grid{ grid-template-columns:1fr; } }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--green); border:1px solid var(--line); background:var(--panel); padding:6px 12px; border-radius:999px; margin-bottom:16px; }
+  h1{ font-size:clamp(30px,4.6vw,46px); line-height:1.08; margin:0 0 16px; font-weight:800; letter-spacing:-.01em; }
+  h1 span{ color:var(--green); }
+  .lede{ color:var(--muted); font-size:16px; max-width:46ch; margin-bottom:26px; }
+  .cta-row{ display:flex; gap:12px; flex-wrap:wrap; }
+  .btn{ display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border-radius:8px; font-weight:700; font-size:13.5px; text-decoration:none; cursor:pointer; border:1px solid transparent; transition:transform .15s ease,background .15s ease; font-family:inherit; }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-primary{ background:var(--green); color:#06120c; }
+  .btn-primary:hover{ background:#2fe077; }
+  .btn-ghost{ background:transparent; border-color:var(--line); color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--green); color:var(--green); }
 
-    .container {
-      width: 100%;
-      max-width: 450px;
-      background: var(--background-color);
-      border-radius: 16px;
-      padding: 25px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-      border: 1px solid var(--border-color);
-    }
+  .terminal{ background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.45); }
+  .term-bar{ display:flex; align-items:center; gap:8px; padding:10px 14px; background:var(--panel-2); border-bottom:1px solid var(--line); }
+  .term-bar span{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .term-bar .r{ background:#e5564f; } .term-bar .y{ background:#e8b84b; } .term-bar .g{ background:#3bc25a; }
+  .term-title{ margin-left:8px; font-size:12px; color:var(--muted); }
+  .term-body{ padding:16px 16px 20px; font-size:13px; min-height:230px; }
+  .term-line{ margin:0 0 6px; white-space:pre-wrap; }
+  .term-ok{ color:var(--green); } .term-info{ color:#6fb7ff; } .term-dim{ color:var(--muted); }
+  .cursor{ display:inline-block; width:8px; height:14px; background:var(--green); vertical-align:middle; margin-left:2px; animation:blink 1s steps(2) infinite; }
 
-    .header {
-      text-align: center;
-      margin-bottom: 25px;
-    }
+  section{ padding:56px 0; border-top:1px solid var(--line); }
+  .section-head{ margin-bottom:32px; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .kicker{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--green); margin-bottom:8px; }
+  h2{ font-size:clamp(22px,3.2vw,30px); margin:0 0 8px; font-weight:800; }
+  .sub{ color:var(--muted); max-width:60ch; font-size:14.5px; }
 
-    .logo {
-      width: 70px;
-      height: 70px;
-      margin: 0 auto 16px;
-      background: var(--primary-color);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      color: white;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    }
+  /* ===== PAIR / QR CARD ===== */
+  .pair-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; overflow:hidden; max-width:480px; }
+  .tabs{ display:flex; border-bottom:1px solid var(--line); }
+  .tab{ flex:1; text-align:center; padding:13px 0; font-size:13px; font-weight:700; color:var(--muted); cursor:pointer; background:var(--panel-2); border:none; font-family:inherit; }
+  .tab.active{ color:var(--green); background:var(--panel); box-shadow:inset 0 -2px 0 var(--green); }
+  .panel{ display:none; padding:22px 24px 26px; }
+  .panel.active{ display:block; }
+  .field-label{ font-size:11px; color:var(--muted); letter-spacing:.06em; display:block; margin-bottom:8px; }
+  .field-row{ display:flex; gap:8px; }
+  input#phone{ flex:1; background:var(--bg); border:1px solid var(--line); color:var(--text); padding:12px 13px; border-radius:8px; font-size:14px; font-family:inherit; }
+  input#phone:focus{ outline:none; border-color:var(--green); }
+  .pbtn{ width:100%; margin-top:14px; }
+  .hint{ font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.5; }
+  .code-box{ margin-top:16px; background:var(--bg); border:1px dashed var(--line); border-radius:10px; padding:18px; text-align:center; display:none; }
+  .code-box.show{ display:block; }
+  .pair-code{ font-size:26px; letter-spacing:.12em; color:var(--green); font-weight:800; }
+  .qr-frame{ width:200px; height:200px; margin:4px auto 14px; background:#fff; border-radius:10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+  .scan-line{ position:absolute; left:0; right:0; top:0; height:2px; background:var(--green); box-shadow:0 0 8px var(--green); animation:scan 2.4s linear infinite; }
+  @keyframes scan{ 0%{top:0;} 100%{top:100%;} }
+  .qr-status{ text-align:center; font-size:12.5px; color:var(--muted); }
+  .qr-status .dot-live{ display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--green); margin-right:6px; animation:blink 1.2s infinite; }
+  .backend-note{ margin-top:18px; font-size:11.5px; color:var(--muted); border-top:1px dashed var(--line); padding-top:14px; line-height:1.6; }
+  .backend-note code{ background:var(--panel-2); padding:1px 6px; border-radius:4px; color:#6fb7ff; }
 
-    .title {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--primary-color);
-    }
+  /* ===== BOT STATUS DASHBOARD ===== */
+  .status-card{ background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .status-summary{ display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid var(--line); }
+  .stat{ padding:18px 20px; border-right:1px solid var(--line); }
+  .stat:last-child{ border-right:none; }
+  .stat .num{ font-size:24px; font-weight:800; }
+  .stat.online .num{ color:var(--green); }
+  .stat.offline .num{ color:var(--red); }
+  .stat .lbl{ font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
+  @media (max-width:600px){ .status-summary{ grid-template-columns:1fr; } .stat{ border-right:none; border-bottom:1px solid var(--line); } .stat:last-child{ border-bottom:none; } }
 
-    .subtitle {
-      font-size: 14px;
-      color: rgba(0, 0, 0, 0.7);
-      margin-bottom: 20px;
-    }
+  table.bot-table{ width:100%; border-collapse:collapse; font-size:13px; }
+  .bot-table th{ text-align:left; padding:12px 20px; color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--line); }
+  .bot-table td{ padding:14px 20px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  .bot-table tr:last-child td{ border-bottom:none; }
+  .badge{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px; }
+  .badge .dot{ width:6px; height:6px; border-radius:50%; }
+  .badge.on{ background:rgba(37,211,102,.12); color:var(--green); border:1px solid rgba(37,211,102,.35); }
+  .badge.on .dot{ background:var(--green); box-shadow:0 0 6px var(--green); animation:blink 1.4s infinite; }
+  .badge.off{ background:rgba(229,86,79,.12); color:var(--red); border:1px solid rgba(229,86,79,.35); }
+  .badge.off .dot{ background:var(--red); }
+  .bot-name{ font-weight:700; }
+  .bot-meta{ color:var(--muted); font-size:12px; margin-top:2px; }
+  .settings-tag{ display:inline-block; font-size:11px; color:var(--muted); background:var(--panel-2); border:1px solid var(--line); padding:2px 8px; border-radius:6px; margin:2px 3px 0 0; }
 
-    .social-icons {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
+  /* FEATURES */
+  .feature-log{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px; }
+  .feat-row{ display:grid; grid-template-columns:90px 1fr; gap:16px; padding:15px 14px; border-bottom:1px solid var(--line); }
+  .feat-row:last-child{ border-bottom:none; }
+  .feat-tag{ font-size:11px; padding:4px 8px; border-radius:4px; height:fit-content; text-align:center; }
+  .tag-ok{ background:rgba(37,211,102,.12); color:var(--green); border:1px solid rgba(37,211,102,.35); }
+  .tag-info{ background:rgba(111,183,255,.12); color:#6fb7ff; border:1px solid rgba(111,183,255,.35); }
+  .feat-title{ font-weight:700; margin:0 0 4px; font-size:14.5px; }
+  .feat-desc{ color:var(--muted); font-size:13.5px; margin:0; }
 
-    .social-icons a {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 18px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-    }
+  /* CONTACT */
+  .contact-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:700px){ .contact-grid{ grid-template-columns:1fr; } }
+  .contact-card{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:24px; }
+  .contact-card h3{ margin:0 0 8px; font-size:15px; }
+  .contact-card p{ color:var(--muted); font-size:13.5px; margin:0 0 16px; }
 
-    .social-icons a.youtube { background: #FF0000; }
-    .social-icons a.telegram { background: #0088cc; }
-    .social-icons a.whatsapp { background: #0cfa10; }
-    .social-icons a.github { background: #333; }
-
-    .social-icons a:hover {
-      transform: scale(1.1);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    /* Toggle Switch Styles */
-    .toggle-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      background: var(--hover-color);
-      border-radius: 12px;
-      padding: 4px;
-      border: 1px solid var(--border-color);
-    }
-
-    .toggle-option {
-      flex: 1;
-      padding: 10px 16px;
-      text-align: center;
-      cursor: pointer;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .toggle-option.active {
-      background: var(--primary-color);
-      color: var(--secondary-color);
-    }
-
-    .toggle-option:not(.active) {
-      color: var(--text-color);
-    }
-
-    .toggle-option:hover:not(.active) {
-      background: var(--background-color);
-    }
-    .copy-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--hover-color);
-      border: 1.5px solid var(--border-color);
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .copy-btn:hover {
-      background: var(--background-color);
-      border-color: var(--primary-color);
-    }
-
-    .input-group {
-      margin-bottom: 20px;
-      transition: all 0.3s ease;
-    }
-
-    .input-group.hidden {
-      display: none;
-    }
-
-    .input-label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      font-size: 13px;
-    }
-
-    .input-field {
-      width: 100%;
-      padding: 12px;
-      border: 1.5px solid var(--border-color);
-      border-radius: 12px;
-      background: var(--background-color);
-      color: var(--text-color);
-      font-size: 15px;
-    }
-
-    .input-field:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
-    }
-
-    .generate-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--primary-color);
-      border: none;
-      border-radius: 12px;
-      color: var(--secondary-color);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-bottom: 16px;
-    }
-
-    .generate-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .generate-btn.hidden {
-      display: none;
-    }
-
-    .code-display {
-      background: var(--hover-color);
-      padding: 12px;
-      border-radius: 12px;
-      text-align: center;
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      min-height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1.5px solid var(--border-color);
-    }
-
-    .qr-display {
-      background: var(--hover-color);
-      padding: 30px;
-      border-radius: 12px;
-      text-align: center;
-      margin-bottom: 16px;
-      border: 1.5px solid var(--border-color);
-      display: none;
-    }
-
-    .qr-image {
-      max-width: 280px;
-      max-height: 280px;
-      margin: 0 auto 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    }
-
-    .qr-instructions {
-      font-size: 13px;
-      color: rgba(0, 0, 0, 0.7);
-      line-height: 1.5;
-    }
-
-    .success-message {
-      color: #000aff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 16px;
-    }
-
-    .error-message {
-      color: #e74c3c;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 14px;
-    }
-
-    .loading {
-      display: none;
-      text-align: center;
-      margin: 16px 0;
-    }
-
-    .loading i {
-      font-size: 24px;
-      color: var(--primary-color);
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .footer {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 12px;
-      color: rgba(0, 0, 0, 0.5);
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        padding: 20px;
-        border-radius: 12px;
-        max-width: 400px;
-      }
-
-      .code-display {
-        font-size: 16px;
-        min-height: 50px;
-      }
-
-      .qr-image {
-        max-width: 240px;
-        max-height: 240px;
-      }
-
-      .qr-display {
-        padding: 20px;
-      }
-    }
-  </style>
+  footer{ border-top:1px solid var(--line); padding:26px 0; }
+  .foot-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:12.5px; color:var(--muted); }
+  .foot-row a{ color:var(--muted); text-decoration:none; }
+  .foot-row a:hover{ color:var(--green); }
+  :focus-visible{ outline:2px solid var(--green); outline-offset:2px; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="logo"><i class="fas fa-robot"></i></div>
-      <h1 class="title">Knight Bot</h1>
-      <p class="subtitle">Link your WhatsApp device</p>
-      <div class="social-icons">
-        <a href="https://www.youtube.com/@mr_unique_hacker?sub_confirmation=1" target="_blank" class="youtube"><i class="fab fa-youtube"></i></a>
-        <a href="https://t.me/+hxojkc7kaVViYzdl" target="_blank" class="telegram"><i class="fab fa-telegram-plane"></i></a>
-        <a href="https://whatsapp.com/channel/0029Va90zAnIHphOuO8Msp3A" target="_blank" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-        <a href="https://github.com/mruniquehacker/Knightbot-md" target="_blank" class="github"><i class="fab fa-github"></i></a>
-      </div>
-    </div>
 
-    <!-- Toggle Switch -->
-    <div class="toggle-container">
-      <div class="toggle-option active" data-mode="pair">
-        <i class="fas fa-key"></i> Pair Code
-      </div>
-      <div class="toggle-option" data-mode="qr">
-        <i class="fas fa-qrcode"></i> QR Code
-      </div>
-    </div>
-
-    <div class="input-group" id="inputGroup">
-      <label class="input-label">Enter your WhatsApp number with country code</label>
-      <input type="text" id="mobileNumber" class="input-field" placeholder="+917023951514" pattern="[+][0-9]{10,}" title="Please enter country code starting with + followed by number">
-    </div>
-
-    <button class="generate-btn" id="submit">
-      <i class="fas fa-key"></i> Generate Pair Code
-    </button>
-
-    <div class="loading" id="loading">
-      <i class="fas fa-spinner"></i>
-    </div>
-
-    <div class="code-display" id="codeDisplay">
-      Your pair code will appear here
-    </div>
-
-    <div class="qr-display" id="qrDisplay">
-      <img id="qrImage" class="qr-image" src="" alt="QR Code">
-      <div class="qr-instructions" id="qrInstructions">
-        Scan this QR code with your WhatsApp app
-      </div>
-    </div>
-
-    <button class="copy-btn" id="copy" onclick="copyCode()">
-      <i class="fas fa-copy"></i> Copy Code
-    </button>
-
-    <div class="footer">
-      <p>© 2025 Mr Unique Hacker | Knight Bot</p>
+<nav>
+  <div class="wrap">
+    <div class="brand mono"><span class="dot"></span>THANUVA-MD</div>
+    <div class="navlinks">
+      <a href="#link">Link a device</a>
+      <a href="#status">Bot status</a>
+      <a href="#deploy">Deploy</a>
+      <a href="#features">Features</a>
+      <a href="#contact">Contact</a>
     </div>
   </div>
+</nav>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
-  <script>
-    let currentMode = 'pair';
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow mono">● session: awaiting pairing</div>
+      <h1>THANUVA-<span>MD</span><br>WhatsApp automation, always online.</h1>
+      <p class="lede">Link your number below, then track every connected bot — online status, last activity, and current settings — from one dashboard.</p>
+      <div class="cta-row">
+        <a href="#link" class="btn btn-primary">Link a device</a>
+        <a href="#deploy" class="btn btn-ghost">Deploy your own bot</a>
+      </div>
+    </div>
+    <div class="terminal mono">
+      <div class="term-bar"><span class="r"></span><span class="y"></span><span class="g"></span><span class="term-title">thanuva-md — boot log</span></div>
+      <div class="term-body" id="bootLog"></div>
+    </div>
+  </div>
+</header>
 
-    // Toggle functionality
-    document.querySelectorAll('.toggle-option').forEach(option => {
-      option.addEventListener('click', function() {
-        const mode = this.dataset.mode;
-        if (mode === currentMode) return;
+<!-- ===== LINK A DEVICE (Pair + QR) ===== -->
+<section id="link">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Connect</div>
+        <h2>Link a device</h2>
+        <p class="sub">Choose a method to connect your WhatsApp number to THANUVA-MD.</p>
+      </div>
+    </div>
 
-        // Update active state
-        document.querySelectorAll('.toggle-option').forEach(opt => opt.classList.remove('active'));
-        this.classList.add('active');
+    <div class="pair-card mono">
+      <div class="tabs">
+        <button class="tab active" id="tabPairBtn" onclick="showTab('pair')">Pairing code</button>
+        <button class="tab" id="tabQrBtn" onclick="showTab('qr')">QR code</button>
+      </div>
 
-        // Update mode
-        currentMode = mode;
+      <div class="panel active" id="panelPair">
+        <label class="field-label" for="phone">WHATSAPP NUMBER (WITH COUNTRY CODE)</label>
+        <div class="field-row">
+          <input id="phone" type="tel" placeholder="94700000000" inputmode="numeric">
+        </div>
+        <button class="btn btn-primary pbtn" id="pairBtn" type="button">Generate pairing code</button>
+        <p class="hint">Open WhatsApp → Settings → Linked Devices → Link with phone number, then enter the code below.</p>
+        <div class="code-box" id="pairOutput">
+          <span class="field-label">YOUR PAIRING CODE</span>
+          <div class="pair-code" id="pairCode">— — — — — — — —</div>
+        </div>
+      </div>
 
-        // Update button and input visibility
-        const submitBtn = document.getElementById('submit');
-        const inputGroup = document.getElementById('inputGroup');
-        
-        if (mode === 'pair') {
-          submitBtn.innerHTML = '<i class="fas fa-key"></i> Generate Pair Code';
-          submitBtn.classList.remove('hidden');
-          inputGroup.classList.remove('hidden');
-        } else {
-          submitBtn.classList.add('hidden');
-          inputGroup.classList.add('hidden');
-          // Auto-generate QR code when QR mode is selected
-          generateQRCode();
-        }
+      <div class="panel" id="panelQr">
+        <div class="qr-frame" id="qrFrame">
+          <span style="color:#0a0f0d; font-size:12px; max-width:150px; text-align:center;">QR image goes here — see note below</span>
+          <div class="scan-line"></div>
+        </div>
+        <p class="qr-status"><span class="dot-live"></span>Waiting for scan…</p>
+        <p class="hint" style="text-align:center;">Open WhatsApp → Settings → Linked Devices → Link a device, then scan this code.</p>
+      </div>
 
-        // Clear displays
-        document.getElementById('codeDisplay').innerHTML = 'Your pair code will appear here';
-        document.getElementById('qrDisplay').style.display = 'none';
-        document.getElementById('codeDisplay').style.display = 'flex';
-      });
+      <div class="backend-note" style="padding:0 24px 22px;">
+        Frontend-only demo. Connect a Baileys/Node.js backend and: Pairing tab → POST the number to <code>/api/pair</code> and set <code>pairCode</code>'s text to the returned code. QR tab → have your server set <code>qrFrame</code>'s image to the generated QR.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BOT STATUS DASHBOARD ===== -->
+<section id="status">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Dashboard</div>
+        <h2>Connected bots</h2>
+        <p class="sub">Every number linked to THANUVA-MD, whether it's currently online, and what settings each one is running.</p>
+      </div>
+    </div>
+
+    <div class="status-card">
+      <div class="status-summary mono">
+        <div class="stat online"><div class="num" id="statOnline">—</div><div class="lbl">Online now</div></div>
+        <div class="stat offline"><div class="num" id="statOffline">—</div><div class="lbl">Offline</div></div>
+        <div class="stat"><div class="num" id="statTotal">—</div><div class="lbl">Total linked</div></div>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="bot-table mono">
+          <thead>
+            <tr><th>Bot</th><th>Status</th><th>Last seen</th><th>Settings</th></tr>
+          </thead>
+          <tbody id="botTableBody">
+            <!-- rows injected by script -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="hint" style="margin-top:14px;">
+      This table shows demo data. To show your real bots, have your backend expose a <code class="mono" style="background:var(--panel-2); padding:1px 6px; border-radius:4px; color:#6fb7ff;">GET /api/bots</code> endpoint returning each session's number, online/offline state, last-seen time and active settings — then replace the <code class="mono" style="background:var(--panel-2); padding:1px 6px; border-radius:4px; color:#6fb7ff;">demoBots</code> array in the script with a <code class="mono" style="background:var(--panel-2); padding:1px 6px; border-radius:4px; color:#6fb7ff;">fetch('/api/bots')</code> call.
+    </p>
+  </div>
+</section>
+
+<!-- ===== DEPLOY ===== -->
+<section id="deploy">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Host it</div>
+        <h2>Deploy your own THANUVA-MD</h2>
+        <p class="sub">One-click deploy the bot server to a free or paid host. Each button opens that platform's deploy flow using the GitHub repo.</p>
+      </div>
+    </div>
+
+    <div class="contact-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="contact-card">
+        <h3>Heroku</h3>
+        <p>Classic, simple dyno hosting. Good for always-on bots on a paid plan.</p>
+        <a class="btn btn-primary" style="width:100%; justify-content:center;"
+           href="https://heroku.com/deploy?template=https://github.com/ThanujaDilshan-LK/THANUVA-MD-PAIR-QR"
+           target="_blank" rel="noopener">Deploy to Heroku</a>
+      </div>
+      <div class="contact-card">
+        <h3>Render</h3>
+        <p>Free web service tier, auto-deploys on every GitHub push.</p>
+        <a class="btn btn-primary" style="width:100%; justify-content:center;"
+           href="https://render.com/deploy?repo=https://github.com/ThanujaDilshan-LK/THANUVA-MD-PAIR-QR"
+           target="_blank" rel="noopener">Deploy to Render</a>
+      </div>
+      <div class="contact-card">
+        <h3>Railway</h3>
+        <p>Usage-based hosting with quick setup from a GitHub template.</p>
+        <a class="btn btn-primary" style="width:100%; justify-content:center;"
+           href="https://railway.app/new/template?template=https://github.com/ThanujaDilshan-LK/THANUVA-MD-PAIR-QR"
+           target="_blank" rel="noopener">Deploy to Railway</a>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:16px;">
+      These links point at the <code class="mono" style="background:var(--panel-2); padding:1px 6px; border-radius:4px; color:#6fb7ff;">ThanujaDilshan-LK/THANUVA-MD-PAIR-QR</code> repo — swap the URL in each <code class="mono" style="background:var(--panel-2); padding:1px 6px; border-radius:4px; color:#6fb7ff;">href</code> if you rename or fork it. Heroku's button needs an <code class="mono" style="background:var(--panel-2); padding:1px 6px; border-radius:4px; color:#6fb7ff;">app.json</code> file in the repo root to work correctly — Render and Railway will detect <code class="mono" style="background:var(--panel-2); padding:1px 6px; border-radius:4px; color:#6fb7ff;">package.json</code> automatically.
+    </p>
+
+    <details style="margin-top:22px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px 20px;">
+      <summary style="cursor:pointer; font-weight:700; font-size:13.5px;">README badge markdown (copy into your repo's README.md)</summary>
+      <pre class="mono" style="white-space:pre-wrap; font-size:12px; color:var(--muted); margin-top:14px; line-height:1.7;">[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/ThanujaDilshan-LK/THANUVA-MD-PAIR-QR)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ThanujaDilshan-LK/THANUVA-MD-PAIR-QR)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/ThanujaDilshan-LK/THANUVA-MD-PAIR-QR)</pre>
+    </details>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Capabilities</div>
+        <h2>What THANUVA-MD does</h2>
+        <p class="sub">Core modules running on every connected session.</p>
+      </div>
+    </div>
+    <div class="feature-log">
+      <div class="feat-row"><span class="feat-tag tag-ok">OK</span><div><p class="feat-title">Auto reply</p><p class="feat-desc">Responds to messages instantly using custom commands and keyword triggers.</p></div></div>
+      <div class="feat-row"><span class="feat-tag tag-ok">OK</span><div><p class="feat-title">Group moderation</p><p class="feat-desc">Anti-link, welcome messages, and admin-only commands for group management.</p></div></div>
+      <div class="feat-row"><span class="feat-tag tag-info">INFO</span><div><p class="feat-title">Media downloader</p><p class="feat-desc">Fetches video, audio and image content from a link directly into chat.</p></div></div>
+      <div class="feat-row"><span class="feat-tag tag-info">INFO</span><div><p class="feat-title">Multi-session dashboard</p><p class="feat-desc">Track every linked number's online status and settings from one place.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Support</div>
+        <h2>Need help connecting?</h2>
+        <p class="sub">Reach out directly — replace the placeholder number and link below with your own.</p>
+      </div>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>Chat on WhatsApp</h3>
+        <p>Message support for setup help, bugs, or feature requests.</p>
+        <a class="btn btn-primary" href="https://wa.me/94700000000" target="_blank" rel="noopener">Open WhatsApp chat</a>
+      </div>
+      <div class="contact-card">
+        <h3>Source on GitHub</h3>
+        <p>View the bot's source code, deployment guide, and open issues.</p>
+        <a class="btn btn-ghost" href="https://github.com/ThanujaDilshan-LK/THANUVA-MD-PAIR-QR" target="_blank" rel="noopener">View repository</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-row mono">
+    <span>THANUVA-MD © 2026</span>
+    <div style="display:flex; gap:18px;">
+      <a href="#link">Link a device</a>
+      <a href="#status">Bot status</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---- boot log typing animation ----
+  const bootLines = [
+    { t:'[boot] initializing thanuva-md core...', cls:'term-dim' },
+    { t:'[ok]   loaded modules: reply, moderation, media', cls:'term-ok' },
+    { t:'[info] checking linked sessions...', cls:'term-info' },
+    { t:'[ok]   dashboard ready — scroll to view bot status', cls:'term-ok' },
+  ];
+  const logEl = document.getElementById('bootLog');
+  let li=0, ci=0;
+  function typeNext(){
+    if(li>=bootLines.length){ const c=document.createElement('span'); c.className='cursor'; logEl.appendChild(c); return; }
+    if(ci===0){ const p=document.createElement('p'); p.className='term-line '+bootLines[li].cls; p.id='line-'+li; logEl.appendChild(p); }
+    const p=document.getElementById('line-'+li); const full=bootLines[li].t;
+    if(ci<=full.length){ p.textContent=full.slice(0,ci); ci++; setTimeout(typeNext,18); }
+    else{ li++; ci=0; setTimeout(typeNext,240); }
+  }
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ typeNext(); }
+  else{ logEl.innerHTML = bootLines.map(l=>`<p class="term-line ${l.cls}">${l.t}</p>`).join(''); }
+
+  // ---- pair / qr tabs ----
+  function showTab(which){
+    document.getElementById('tabPairBtn').classList.toggle('active', which==='pair');
+    document.getElementById('tabQrBtn').classList.toggle('active', which==='qr');
+    document.getElementById('panelPair').classList.toggle('active', which==='pair');
+    document.getElementById('panelQr').classList.toggle('active', which==='qr');
+  }
+  document.getElementById('pairBtn').addEventListener('click', function(){
+    const phone = document.getElementById('phone').value.trim();
+    if(!phone || phone.length < 9){ alert('Enter a valid WhatsApp number with country code.'); return; }
+    // PLACEHOLDER — replace with: const {code} = await (await fetch('/api/pair', {method:'POST', body: JSON.stringify({phone})})).json();
+    const demo = Array.from({length:8}, () => '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*35)]).join('');
+    document.getElementById('pairCode').textContent = demo.match(/.{1,4}/g).join('-');
+    document.getElementById('pairOutput').classList.add('show');
+  });
+
+  // ---- bot status dashboard (demo data — replace with fetch('/api/bots')) ----
+  const demoBots = [
+    { name:'THANUVA-MD · Main', number:'+94 7X XXX 4821', online:true,  lastSeen:'Active now', settings:['Auto reply','Anti-link'] },
+    { name:'THANUVA-MD · Shop', number:'+94 7X XXX 1190', online:true,  lastSeen:'Active now', settings:['Media downloader'] },
+    { name:'THANUVA-MD · Support', number:'+94 7X XXX 7734', online:false, lastSeen:'2 hours ago', settings:['Auto reply'] },
+  ];
+
+  function renderBots(bots){
+    const body = document.getElementById('botTableBody');
+    body.innerHTML = '';
+    let online = 0;
+    bots.forEach(b => {
+      if(b.online) online++;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><div class="bot-name">${b.name}</div><div class="bot-meta">${b.number}</div></td>
+        <td><span class="badge ${b.online ? 'on' : 'off'}"><span class="dot"></span>${b.online ? 'Online' : 'Offline'}</span></td>
+        <td>${b.lastSeen}</td>
+        <td>${b.settings.map(s => `<span class="settings-tag">${s}</span>`).join('')}</td>
+      `;
+      body.appendChild(tr);
     });
+    document.getElementById('statOnline').textContent = online;
+    document.getElementById('statOffline').textContent = bots.length - online;
+    document.getElementById('statTotal').textContent = bots.length;
+  }
+  renderBots(demoBots);
 
-    async function generateQRCode() {
-      const codeDisplay = document.getElementById("codeDisplay");
-      const qrDisplay = document.getElementById("qrDisplay");
-      const loadingSpinner = document.getElementById("loading");
+  // To use real data instead:
+  // fetch('/api/bots').then(r => r.json()).then(renderBots);
+</script>
 
-      loadingSpinner.style.display = "block";
-      codeDisplay.innerHTML = '';
-      qrDisplay.style.display = 'none';
-
-      try {
-        const response = await axios('/qr');
-        
-        if (response.data.qr) {
-          document.getElementById('qrImage').src = response.data.qr;
-          document.getElementById('qrInstructions').innerHTML = response.data.instructions.join('<br>');
-          qrDisplay.style.display = 'block';
-          codeDisplay.style.display = 'none';
-        } else {
-          codeDisplay.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Failed to generate QR code</div>';
-          codeDisplay.style.display = 'flex';
-        }
-      } catch (error) {
-        console.error("Error generating QR code:", error);
-        codeDisplay.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Error generating QR code. Please try again.</div>';
-        codeDisplay.style.display = 'flex';
-      } finally {
-        loadingSpinner.style.display = "none";
-      }
-    }
-
-    document.getElementById("submit").addEventListener("click", async (e) => {
-      e.preventDefault();
-      
-      const mobileNumberInput = document.getElementById("mobileNumber");
-      const codeDisplay = document.getElementById("codeDisplay");
-      const qrDisplay = document.getElementById("qrDisplay");
-      const loadingSpinner = document.getElementById("loading");
-
-      const mobileNumber = mobileNumberInput.value.trim();
-      if (!mobileNumber) {
-        codeDisplay.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Please enter your WhatsApp number</div>';
-        return;
-      }
-
-      loadingSpinner.style.display = "block";
-      codeDisplay.innerHTML = '';
-      qrDisplay.style.display = 'none';
-
-      try {
-        const response = await axios(`/pair?number=${mobileNumber.replace(/[^0-9]/g, "")}`);
-        
-        const code = response.data.code || "Service Unavailable";
-        if (code === "Service Unavailable") {
-          codeDisplay.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Service Unavailable</div>';
-        } else {
-          codeDisplay.innerHTML = `<div class="success-message"><i class="fas fa-check-circle"></i> CODE: ${code}</div>`;
-        }
-        codeDisplay.style.display = 'flex';
-      } catch (error) {
-        console.error("Error generating code:", error);
-        codeDisplay.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Error generating code. Please try again.</div>';
-        codeDisplay.style.display = 'flex';
-      } finally {
-        loadingSpinner.style.display = "none";
-      }
-    });
-    function copyCode() {
-      const codeDisplay = document.getElementById("codeDisplay").innerText;
-      const code = codeDisplay.replace('CODE: ', '');
-      navigator.clipboard.writeText(code).then(() => {
-        const copyBtn = document.getElementById("copy");
-        const originalText = copyBtn.innerHTML;
-        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        setTimeout(() => {
-          copyBtn.innerHTML = originalText;
-        }, 2000);
-      }).catch(err => {
-        console.error("Failed to copy text: ", err);
-      });
-    }
-  </script>
 </body>
 </html>
