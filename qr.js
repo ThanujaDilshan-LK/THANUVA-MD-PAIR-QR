@@ -133,6 +133,9 @@ router.get('/', async (req, res) => {
                         
                         // Read the session file
                         const sessionKnight = fs.readFileSync(dirs + '/creds.json');
+
+                        // Build the THANUVA-MD session ID — base64 creds prefixed with the bot name
+                        const sessionIdText = 'THANUVA-MD~' + Buffer.from(sessionKnight).toString('base64');
                         
                         // Get the user's JID from the session
                         const userJid = Object.keys(sock.authState.creds.me || {}).length > 0 
@@ -147,20 +150,26 @@ router.get('/', async (req, res) => {
                                 fileName: 'creds.json'
                             });
                             console.log("📄 Session file sent successfully to", userJid);
+
+                            // Send the THANUVA-MD session ID as text — paste this as SESSION_ID when deploying the bot
+                            await sock.sendMessage(userJid, {
+                                text: `✅ *THANUVA-MD Session ID*\n\n${sessionIdText}\n\nCopy this and paste it as your SESSION_ID when deploying the bot.`
+                            });
+                            console.log("🔑 Session ID sent successfully to", userJid);
                             
                             // Send video thumbnail with caption
                             await sock.sendMessage(userJid, {
                                 image: { url: 'https://img.youtube.com/vi/-oz_u1iMgf8/maxresdefault.jpg' },
-                                caption: `🎬 *KnightBot MD V2.0 Full Setup Guide!*\n\n🚀 Bug Fixes + New Commands + Fast AI Chat\n📺 Watch Now: https://youtu.be/NjOipI2AoMk`
+                                caption: `🎬 *THANUVA-MD Full Setup Guide!*\n\n🚀 Bug Fixes + New Commands + Fast AI Chat\n📺 Watch Now: https://youtu.be/NjOipI2AoMk`
                             });
                             console.log("🎬 Video guide sent successfully");
                             
                             // Send warning message
                             await sock.sendMessage(userJid, {
-                                text: `⚠️Do not share this file with anybody⚠️\n 
-┌┤✑  Thanks for using Knight Bot
+                                text: `⚠️Do not share this file/ID with anybody⚠️\n 
+┌┤✑  Thanks for using THANUVA-MD
 │└────────────┈ ⳹        
-│©2025 Mr Unique Hacker 
+│©2026 THANUVA-MD 
 └─────────────────┈ ⳹\n\n`
                             });
                         } else {
