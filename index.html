@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THANUVA-MD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#07080b; --card:#14151a; --card-2:#1b1c22; --line:#262832;
+    --green:#3ddc4a; --green-soft:#7bffa0; --purple:#a86bff; --text:#f0f1f5; --muted:#8b8d9a;
+    --red:#ff5c5c;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+    font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    line-height:1.55; position:relative; overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+  .mono{ font-family:'JetBrains Mono','IBM Plex Mono','Courier New',monospace; }
+  a{ color:inherit; }
+  ::selection{ background:rgba(61,220,74,.3); color:#fff; }
+
+  #stars{ position:fixed; inset:0; z-index:0; }
+  #codeRain{ position:fixed; inset:0; z-index:0; opacity:.13; pointer-events:none; }
+
+  .wrap{ max-width:520px; margin:0 auto; padding:0 20px; position:relative; z-index:2; }
+
+  /* ===== TOP PILL NAV ===== */
+  .topbar{ display:flex; justify-content:center; padding:22px 20px 10px; position:relative; z-index:10; }
+  .topbar-pill{
+    display:flex; align-items:center; gap:10px; background:rgba(20,21,26,.85);
+    border:1px solid var(--line); backdrop-filter:blur(10px);
+    padding:9px 10px 9px 18px; border-radius:999px; box-shadow:0 10px 30px rgba(0,0,0,.4);
+  }
+  .logo-text{
+    font-weight:800; font-size:15px; letter-spacing:.01em;
+    background:linear-gradient(100deg, var(--purple), #6ea8ff 55%, var(--green-soft));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-right:4px;
+  }
+  .pill-btn{
+    display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700;
+    padding:8px 14px; border-radius:999px; border:1px solid var(--line); cursor:pointer;
+    font-family:'Space Grotesk',sans-serif; text-decoration:none; transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .pill-btn:hover{ transform:translateY(-1px); }
+  .pill-btn.buy{ background:rgba(61,220,74,.14); color:var(--green-soft); border-color:rgba(61,220,74,.35); }
+  .pill-btn.buy:hover{ box-shadow:0 6px 18px rgba(61,220,74,.25); }
+  .pill-btn.pair{ background:rgba(255,255,255,.04); color:var(--text); }
+  .pill-btn.pair:hover{ border-color:var(--green); color:var(--green-soft); }
+
+  .nav-actions{ display:none; align-items:center; gap:10px; }
+  .nav-actions.visible{ display:flex; animation:fadeIn .35s ease; }
+
+  /* ===== CARD ===== */
+  .card{
+    background:linear-gradient(180deg, var(--card), var(--card-2));
+    border:1px solid var(--line); border-radius:22px; padding:28px 24px 26px;
+    box-shadow:0 20px 50px rgba(0,0,0,.5); margin:18px 0;
+  }
+  .card-title{ text-align:center; font-size:24px; font-weight:800; color:var(--green-soft); margin:0 0 8px; letter-spacing:-.01em; }
+  .card-sub{ text-align:center; color:var(--muted); font-size:13.5px; margin:0 0 22px; }
+
+  .field-label{ font-size:11px; color:var(--muted); letter-spacing:.05em; display:block; margin-bottom:8px; }
+  input.field-input{
+    width:100%; background:#0c0d11; border:1px solid var(--line); color:var(--text);
+    padding:14px 15px; border-radius:12px; font-size:14.5px; font-family:'JetBrains Mono',monospace;
+  }
+  input.field-input:focus{ outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(61,220,74,.14); }
+  .field-hint{ font-size:11.5px; color:var(--muted); margin-top:8px; }
+
+  .btn-big{
+    display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+    margin-top:18px; padding:15px; border-radius:14px; border:none; cursor:pointer;
+    font-weight:700; font-size:14.5px; font-family:'Space Grotesk',sans-serif;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-big:hover{ transform:translateY(-2px); }
+  .btn-green{ background:linear-gradient(135deg, var(--green-soft), var(--green)); color:#04120a; box-shadow:0 10px 26px rgba(61,220,74,.25); }
+  .btn-green:hover{ box-shadow:0 14px 34px rgba(61,220,74,.4); }
+  .btn-outline{ background:rgba(255,255,255,.03); border:1px solid var(--line); color:var(--text); }
+  .btn-outline:hover{ border-color:var(--green); color:var(--green-soft); }
+  .btn-purple{ background:linear-gradient(135deg,#c79bff,var(--purple)); color:#160a2b; box-shadow:0 10px 26px rgba(168,107,255,.25); }
+  .btn-purple:hover{ box-shadow:0 14px 34px rgba(168,107,255,.4); }
+
+  .pill-center{ display:flex; justify-content:center; margin:14px 0 6px; }
+  .pill-outline-btn{
+    display:inline-flex; align-items:center; gap:8px; padding:13px 22px; border-radius:999px;
+    background:rgba(255,255,255,.03); border:1px solid var(--line); color:var(--text);
+    font-weight:700; font-size:13.5px; cursor:pointer; font-family:'Space Grotesk',sans-serif;
+  }
+  .pill-outline-btn:hover{ border-color:var(--green); color:var(--green-soft); }
+
+  .code-box{
+    margin-top:16px; background:#0c0d11; border:1px dashed rgba(61,220,74,.4);
+    border-radius:14px; padding:20px; text-align:center; display:none;
+  }
+  .code-box.show{ display:block; animation:fadeIn .3s ease; }
+  @keyframes fadeIn{ from{ opacity:0; transform:translateY(4px);} to{ opacity:1; transform:translateY(0);} }
+  .pair-code{ font-size:26px; letter-spacing:.14em; color:var(--green-soft); font-weight:800; font-family:'JetBrains Mono',monospace; }
+
+  .qr-frame{
+    width:190px; height:190px; margin:6px auto 16px; background:#fff; border-radius:16px;
+    display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;
+  }
+  .scan-line{ position:absolute; left:0; right:0; top:0; height:2px; background:var(--green); box-shadow:0 0 10px var(--green); animation:scan 2.4s linear infinite; }
+  @keyframes scan{ 0%{top:0;} 100%{top:100%;} }
+
+  .tabs-row{ display:flex; gap:8px; margin-bottom:20px; }
+  .tab-btn{
+    flex:1; padding:10px 0; text-align:center; border-radius:10px; font-size:12.5px; font-weight:700;
+    background:rgba(255,255,255,.03); border:1px solid var(--line); color:var(--muted); cursor:pointer;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .tab-btn.active{ background:rgba(61,220,74,.12); border-color:rgba(61,220,74,.4); color:var(--green-soft); }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; animation:fadeIn .3s ease; }
+
+  /* ===== OWNER / CONTACT CARD ===== */
+  .owner-card{ text-align:center; }
+  .owner-avatar{
+    width:56px; height:56px; border-radius:50%; margin:0 auto 14px;
+    background:linear-gradient(135deg, var(--purple), var(--green)); display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:20px; color:#0a0a0d;
+  }
+  .owner-name{ font-size:17px; font-weight:800; margin:0 0 2px; }
+  .owner-role{ font-size:12px; color:var(--muted); margin:0 0 18px; text-transform:uppercase; letter-spacing:.08em; }
+  .owner-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 14px; background:#0c0d11; border:1px solid var(--line); border-radius:12px; margin-bottom:8px;
+  }
+  .owner-row:last-child{ margin-bottom:0; }
+  .owner-row-label{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+  .owner-row-value{ font-size:13.5px; font-family:'JetBrains Mono',monospace; }
+  .owner-row a{ text-decoration:none; color:var(--green-soft); }
+
+  /* ===== HELP MODAL ===== */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:100; display:none; align-items:center; justify-content:center;
+    background:rgba(4,5,7,.7); backdrop-filter:blur(6px); padding:20px;
+  }
+  .modal-backdrop.open{ display:flex; animation:fadeIn .25s ease; }
+  .modal-box{
+    position:relative; width:100%; max-width:400px; text-align:center;
+    background:linear-gradient(180deg, var(--card), var(--card-2));
+    border:1px solid var(--line); border-radius:22px; padding:34px 24px 26px;
+    box-shadow:0 30px 80px rgba(0,0,0,.6); animation:modalPop .3s ease;
+  }
+  @keyframes modalPop{ from{ opacity:0; transform:scale(.94) translateY(10px); } to{ opacity:1; transform:scale(1) translateY(0); } }
+  .modal-close{
+    position:absolute; top:14px; right:14px; width:30px; height:30px; border-radius:50%;
+    background:rgba(255,255,255,.05); border:1px solid var(--line); color:var(--muted);
+    cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;
+  }
+  .modal-close:hover{ color:var(--text); border-color:var(--green); }
+
+  /* ===== AUTH GATE ===== */
+  .auth-msg{ font-size:12px; margin-top:12px; min-height:16px; text-align:center; }
+  .auth-msg.err{ color:var(--red); }
+  .auth-msg.ok{ color:var(--green-soft); }
+  .auth-step{ display:none; }
+  .auth-step.active{ display:block; animation:fadeIn .3s ease; }
+  .auth-back{ display:block; text-align:center; margin-top:16px; font-size:12px; color:var(--muted); cursor:pointer; text-decoration:underline; }
+  .auth-back:hover{ color:var(--green-soft); }
+
+  #mainContent{ display:none; }
+  #mainContent.visible{ display:block; animation:fadeIn .4s ease; }
+
+  /* ===== DEPLOY GRID ===== */
+  .deploy-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
+  .deploy-btn{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    padding:18px 10px; border-radius:14px; background:#0c0d11; border:1px solid var(--line);
+    color:var(--text); text-decoration:none; font-weight:700; font-size:13px; text-align:center;
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .deploy-btn:hover{ transform:translateY(-2px); border-color:var(--green); color:var(--green-soft); }
+  .deploy-btn .emoji{ font-size:22px; }
+
+  .section-label{ text-align:center; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:26px 0 8px; }
+
+  footer{ text-align:center; padding:34px 20px 40px; color:var(--muted); font-size:12px; }
+  :focus-visible{ outline:2px solid var(--green); outline-offset:2px; }
+
+  @media (max-width:480px){
+    .card{ border-radius:18px; padding:22px 18px 22px; }
+    .topbar-pill{ padding:8px 8px 8px 14px; }
+    .logo-text{ font-size:13.5px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+<canvas id="codeRain"></canvas>
+
+<!-- ===== TOP PILL NAV ===== -->
+<div class="topbar">
+  <div class="topbar-pill">
+    <span class="logo-text">THANUVA-MD</span>
+    <div id="navActions" class="nav-actions">
+      <a class="pill-btn buy" id="buyBtn" href="#">💳 BUY</a>
+      <button class="pill-btn pair" id="pairNavBtn" type="button">⊞ PAIR</button>
+      <button class="pill-btn pair" id="helpNavBtn" type="button">❓ HELP</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ===== AUTH GATE ===== -->
+  <div id="authGate">
+
+    <div class="card auth-step active" id="stepSignup">
+      <p class="card-title">Create Account</p>
+      <p class="card-sub">Sign up once — after that, just your email &amp; password.</p>
+      <label class="field-label" for="suName">NAME</label>
+      <input class="field-input" id="suName" type="text" placeholder="Your name" autocomplete="name">
+      <div style="height:14px;"></div>
+      <label class="field-label" for="suEmail">EMAIL</label>
+      <input class="field-input" id="suEmail" type="email" placeholder="you@example.com" autocomplete="email">
+      <div style="height:14px;"></div>
+      <label class="field-label" for="suPass">PASSWORD</label>
+      <input class="field-input" id="suPass" type="password" placeholder="••••••••" autocomplete="new-password">
+      <button class="btn-big btn-green" id="signupBtn" type="button">Create account</button>
+      <div class="auth-msg" id="signupMsg"></div>
+      <span class="auth-back" id="toLoginLink">Already have an account? Log in</span>
+    </div>
+
+    <div class="card auth-step" id="stepLogin">
+      <p class="card-title">Welcome Back</p>
+      <p class="card-sub">Log in with your email &amp; password.</p>
+      <label class="field-label" for="loginEmail">EMAIL</label>
+      <input class="field-input" id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email">
+      <div style="height:14px;"></div>
+      <label class="field-label" for="loginPass">PASSWORD</label>
+      <input class="field-input" id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password">
+      <button class="btn-big btn-green" id="loginBtn" type="button">Request access code</button>
+      <div class="auth-msg" id="loginMsg"></div>
+      <span class="auth-back" id="toSignupLink">Don't have an account? Sign up</span>
+    </div>
+
+    <div class="card auth-step" id="stepOtp">
+      <p class="card-title">Verify Identity</p>
+      <p class="card-sub">Enter the 6-digit code sent to your email.</p>
+      <input class="field-input mono" id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" style="text-align:center; font-size:22px; letter-spacing:.4em;">
+      <button class="btn-big btn-green" id="otpBtn" type="button">Verify &amp; enter</button>
+      <div class="auth-msg" id="otpMsg"></div>
+      <span class="auth-back" id="backLink">&larr; back to login</span>
+    </div>
+
+  </div>
+
+  <!-- ===== MAIN CONTENT (unlocked after login) ===== -->
+  <div id="mainContent">
+
+    <p class="section-label">Connect your bot</p>
+    <div class="card" id="pairCard">
+      <p class="card-title">Get Pair Code</p>
+      <p class="card-sub">Enter your WhatsApp number to get a pair code.</p>
+
+      <input class="field-input mono" id="phone" type="tel" placeholder="e.g., 947622xxxxx" inputmode="numeric">
+      <p class="field-hint">Enter the number without spaces or the '+' symbol.</p>
+      <button class="btn-big btn-green" id="pairBtn" type="button">Get Code</button>
+      <div class="code-box" id="pairOutput">
+        <span class="field-label">YOUR PAIR CODE</span>
+        <div class="pair-code" id="pairCode">— — — — — — — —</div>
+      </div>
+    </div>
+
+    <div class="pill-center">
+      <button class="pill-outline-btn" id="qrToggleBtn" type="button">⊞ Link with QR code</button>
+    </div>
+
+    <div class="card" id="qrCard" style="display:none; text-align:center;">
+      <div class="qr-frame" id="qrFrame"><div class="scan-line" id="qrScanLine"></div></div>
+      <p class="field-hint" id="qrHint">Open WhatsApp → Linked Devices → scan this code.</p>
+    </div>
+
+    <p class="section-label">Host your own bot</p>
+    <div class="card" id="deployCard">
+      <p class="card-title">Deploy THANUVA-MD</p>
+      <p class="card-sub">One-click deploy to your preferred host.</p>
+      <div class="deploy-grid">
+        <a class="deploy-btn" href="https://heroku.com/deploy?template=https://github.com/ThanujaDilshan-LK/THANUVA-MD" target="_blank" rel="noopener"><span class="emoji">🟣</span>Heroku</a>
+        <a class="deploy-btn" href="https://render.com/deploy?repo=https://github.com/ThanujaDilshan-LK/THANUVA-MD" target="_blank" rel="noopener"><span class="emoji">🟢</span>Render</a>
+        <a class="deploy-btn" href="https://railway.app/new/template?template=https://github.com/ThanujaDilshan-LK/THANUVA-MD" target="_blank" rel="noopener"><span class="emoji">⚪</span>Railway</a>
+        <a class="deploy-btn" href="https://wa.me/94741033159?text=THANUVA-MD%20VPS%20Deploy" target="_blank" rel="noopener"><span class="emoji">🖥️</span>VPS</a>
+      </div>
+    </div>
+
+    <p class="section-label">Get your own bot</p>
+    <div class="card" style="text-align:center;">
+      <p class="card-title">Buy THANUVA-MD</p>
+      <p class="card-sub">Tap below to message the owner directly on WhatsApp and get your bot deployed.</p>
+      <a class="btn-big btn-purple" id="buyBigBtn" href="#" style="text-decoration:none;">💳 Buy THANUVA-MD</a>
+    </div>
+
+  </div>
+
+  <footer>THANUVA-MD © 2026 · M.R.D.M. Thanuja</footer>
+</div>
+
+<!-- ===== HELP MODAL ===== -->
+<div class="modal-backdrop" id="helpModalBackdrop">
+  <div class="modal-box">
+    <button class="modal-close" id="helpModalClose" type="button" aria-label="Close">✕</button>
+    <div class="owner-avatar">MT</div>
+    <p class="owner-name">M.R.D.M. THANUJA</p>
+    <p class="owner-role">Bot Owner · THANUVA-MD</p>
+    <div class="owner-row">
+      <span class="owner-row-label">Number 1</span>
+      <a class="owner-row-value" href="https://wa.me/94741033159" target="_blank" rel="noopener">+94 74 103 3159</a>
+    </div>
+    <div class="owner-row">
+      <span class="owner-row-label">Number 2</span>
+      <a class="owner-row-value" href="https://wa.me/94701979812" target="_blank" rel="noopener">+94 70 197 9812</a>
+    </div>
+    <div class="owner-row">
+      <span class="owner-row-label">Email</span>
+      <a class="owner-row-value" href="mailto:thanujadilsahh2011@gmail.com">thanujadilsahh2011@gmail.com</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- BUY buttons -> WhatsApp message to owner ----
+  const buyLink = 'https://wa.me/94741033159?text=' + encodeURIComponent('THANUVA-MD Buy');
+  document.getElementById('buyBtn').href = buyLink;
+  document.getElementById('buyBigBtn').href = buyLink;
+
+  // ---- top PAIR pill -> scroll to pair card if logged in, else nudge to login ----
+  document.getElementById('pairNavBtn').addEventListener('click', function(){
+    const main = document.getElementById('mainContent');
+    if(main.classList.contains('visible')){
+      document.getElementById('pairCard').scrollIntoView({ behavior:'smooth', block:'center' });
+    } else {
+      document.getElementById('authGate').scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+  });
+
+  // ---- top HELP pill -> opens modal with owner contact info ----
+  document.getElementById('helpNavBtn').addEventListener('click', function(){
+    document.getElementById('helpModalBackdrop').classList.add('open');
+  });
+  document.getElementById('helpModalClose').addEventListener('click', closeHelpModal);
+  document.getElementById('helpModalBackdrop').addEventListener('click', function(e){
+    if(e.target === this) closeHelpModal();
+  });
+  function closeHelpModal(){
+    document.getElementById('helpModalBackdrop').classList.remove('open');
+  }
+
+  // ---- starfield background ----
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  const stars = Array.from({ length: 140 }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    r: Math.random() * 1.3 + 0.2,
+    a: Math.random(),
+    speed: Math.random() * 0.015 + 0.003
+  }));
+  function drawStars(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#07080b'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    stars.forEach(s => {
+      s.a += s.speed;
+      const tw = (Math.sin(s.a) + 1) / 2;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(255,255,255,${0.15 + tw*0.6})`;
+      ctx.fill();
+    });
+  }
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    setInterval(drawStars, 60);
+  } else {
+    drawStars();
+  }
+
+  // ---- falling code rain (subtle, layered behind the stars) ----
+  const rainCanvas = document.getElementById('codeRain');
+  const rctx = rainCanvas.getContext('2d');
+  function resizeRain(){ rainCanvas.width = window.innerWidth; rainCanvas.height = window.innerHeight; }
+  resizeRain(); window.addEventListener('resize', resizeRain);
+  const rainChars = '01アイウエオカキクケコサシスセソ$#&%'.split('');
+  const rainFontSize = 15;
+  let rainDrops = Array(Math.ceil(rainCanvas.width / rainFontSize)).fill(0).map(() => Math.random() * -100);
+  function drawCodeRain(){
+    rctx.fillStyle = 'rgba(7,8,11,0.06)';
+    rctx.fillRect(0, 0, rainCanvas.width, rainCanvas.height);
+    rctx.font = rainFontSize + 'px monospace';
+    rctx.fillStyle = '#7bffa0';
+    for(let i = 0; i < rainDrops.length; i++){
+      const ch = rainChars[Math.floor(Math.random() * rainChars.length)];
+      rctx.fillText(ch, i * rainFontSize, rainDrops[i] * rainFontSize);
+      if(rainDrops[i] * rainFontSize > rainCanvas.height && Math.random() > 0.975) rainDrops[i] = 0;
+      rainDrops[i]++;
+    }
+  }
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    setInterval(drawCodeRain, 55);
+  }
+
+  // ---- signup / login / OTP ----
+  function goAuthStep(id){
+    document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+  let pendingEmail = '';
+
+  document.getElementById('toLoginLink').addEventListener('click', () => goAuthStep('stepLogin'));
+  document.getElementById('toSignupLink').addEventListener('click', () => goAuthStep('stepSignup'));
+  document.getElementById('backLink').addEventListener('click', () => goAuthStep('stepLogin'));
+
+  document.getElementById('signupBtn').addEventListener('click', async function(){
+    const name = document.getElementById('suName').value.trim();
+    const email = document.getElementById('suEmail').value.trim();
+    const pass = document.getElementById('suPass').value.trim();
+    const msg = document.getElementById('signupMsg');
+    const btn = document.getElementById('signupBtn');
+    if(!name || !email || !pass){ msg.textContent = 'Fill in name, email and password.'; msg.className = 'auth-msg err'; return; }
+    btn.disabled = true; msg.textContent = 'Creating account…'; msg.className = 'auth-msg ok';
+    try{
+      const res = await fetch('/api/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, email, password: pass }) });
+      const data = await res.json();
+      if(!res.ok){ msg.textContent = data.error || 'Sign up failed.'; msg.className = 'auth-msg err'; btn.disabled = false; return; }
+      msg.textContent = 'Account created — log in now.'; msg.className = 'auth-msg ok';
+      document.getElementById('loginEmail').value = email;
+      setTimeout(() => goAuthStep('stepLogin'), 700);
+    } catch(err){ msg.textContent = 'Could not reach the server.'; msg.className = 'auth-msg err'; }
+    btn.disabled = false;
+  });
+
+  document.getElementById('loginBtn').addEventListener('click', async function(){
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPass').value.trim();
+    const msg = document.getElementById('loginMsg');
+    const btn = document.getElementById('loginBtn');
+    if(!email || !pass){ msg.textContent = 'Enter both email and password.'; msg.className = 'auth-msg err'; return; }
+    btn.disabled = true; msg.textContent = 'Sending access code…'; msg.className = 'auth-msg ok';
+    try{
+      const res = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, password: pass }) });
+      const data = await res.json();
+      if(!res.ok){ msg.textContent = data.error || 'Login failed.'; msg.className = 'auth-msg err'; btn.disabled = false; return; }
+      pendingEmail = email;
+      msg.textContent = 'Code sent to your email.'; msg.className = 'auth-msg ok';
+      setTimeout(() => goAuthStep('stepOtp'), 500);
+    } catch(err){ msg.textContent = 'Could not reach the server.'; msg.className = 'auth-msg err'; }
+    btn.disabled = false;
+  });
+
+  document.getElementById('otpBtn').addEventListener('click', async function(){
+    const code = document.getElementById('otpInput').value.trim();
+    const msg = document.getElementById('otpMsg');
+    const btn = document.getElementById('otpBtn');
+    if(!code){ msg.textContent = 'Enter the code from your email.'; msg.className = 'auth-msg err'; return; }
+    btn.disabled = true;
+    try{
+      const res = await fetch('/api/verify-otp', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: pendingEmail, code }) });
+      const data = await res.json();
+      if(!res.ok){ msg.textContent = data.error || 'Incorrect code.'; msg.className = 'auth-msg err'; btn.disabled = false; return; }
+      sessionStorage.setItem('thanuvaToken', data.token);
+      document.getElementById('authGate').style.display = 'none';
+      document.getElementById('mainContent').classList.add('visible');
+      document.getElementById('navActions').classList.add('visible');
+    } catch(err){ msg.textContent = 'Could not reach the server.'; msg.className = 'auth-msg err'; }
+    btn.disabled = false;
+  });
+
+  // ---- QR toggle (separate pill button below the pair card) — wired to real /qr backend ----
+  document.getElementById('qrToggleBtn').addEventListener('click', async function(){
+    const qrCard = document.getElementById('qrCard');
+    const showing = qrCard.style.display !== 'none';
+    if(showing){
+      qrCard.style.display = 'none';
+      this.textContent = '⊞ Link with QR code';
+      return;
+    }
+
+    qrCard.style.display = 'block';
+    this.textContent = '⊞ Hide QR code';
+    this.disabled = true;
+
+    const frame = document.getElementById('qrFrame');
+    const hint = document.getElementById('qrHint');
+    frame.innerHTML = '<div class="scan-line" id="qrScanLine"></div>';
+    hint.textContent = 'Generating QR code…';
+
+    try{
+      const res = await fetch('/qr');
+      const data = await res.json();
+      if(!res.ok || !data.qr){
+        hint.textContent = data.code || 'Failed to generate QR code. Try again.';
+        this.disabled = false;
+        return;
+      }
+      frame.innerHTML = `<img src="${data.qr}" alt="WhatsApp QR code" style="width:100%; height:100%; object-fit:contain;">`;
+      hint.textContent = data.message || 'Open WhatsApp → Linked Devices → scan this code.';
+    } catch(err){
+      hint.textContent = 'Could not reach the server. Is the backend running?';
+    }
+    this.disabled = false;
+  });
+
+  // ---- get pair code — wired to real /pair backend ----
+  document.getElementById('pairBtn').addEventListener('click', async function(){
+    const phone = document.getElementById('phone').value.trim();
+    const btn = this;
+    if(!phone || phone.length < 9){ alert('Enter a valid WhatsApp number.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Requesting code…';
+    try{
+      const res = await fetch('/pair?number=' + encodeURIComponent(phone));
+      const data = await res.json();
+      if(!res.ok || !data.code){
+        alert(data.code || 'Failed to get pairing code. Check the number and try again.');
+        btn.disabled = false; btn.textContent = 'Get Code';
+        return;
+      }
+      document.getElementById('pairCode').textContent = data.code;
+      document.getElementById('pairOutput').classList.add('show');
+    } catch(err){
+      alert('Could not reach the server. Is the backend running?');
+    }
+    btn.disabled = false;
+    btn.textContent = 'Get Code';
+  });
+</script>
+
+</body>
+</html>
